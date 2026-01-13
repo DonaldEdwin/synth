@@ -1,22 +1,14 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+require('dotenv').config();
+const userController = require('./controllers/userController');
+const app = express();
 
-const posts = [
-    {
-        username: 'Donald',
-        title: "Post 1"
-    },
-    {
-        username: 'Kyle',
-        title: "Post 2"
-    }
-]
+app.use(express.json());
 
-app.get("/posts" ,(req, res) => {
-    res.json(posts)
-})
+// USER ROUTES
+app.post('/users', userController.register);
+app.post('/users/login', userController.login);
+app.get('/users', userController.getAllUsers);
 
- 
-
-
-app.listen(3000)
+const PORT = process.env.PORT || 3010;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

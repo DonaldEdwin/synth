@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: synth_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root0577
+      MYSQL_DATABASE: synth_db
+      MYSQL_USER: Donald
+      MYSQL_PASSWORD: synth0577
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  synth-app:
+    build: .
+    container_name: synth_nuxt_app
+    ports:
+      - "3002:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_USER: Donald
+      DB_PASSWORD: synth0577
+      DB_NAME: synth_db
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: >
+      sh -c "
+        npm run migrate &&
+        npm run dev
+      "
+
+volumes:
+  mysql_data:
